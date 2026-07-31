@@ -11,11 +11,6 @@ permissions:
   id-token: write
   security-events: write
 
-- name: Set lowercase image name
-  run: |
-    OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-    echo "IMAGE=ghcr.io/$OWNER/ledger-api" >> $GITHUB_ENV
-
 
 jobs:
   security-and-build:
@@ -30,6 +25,10 @@ jobs:
         continue-on-error: true 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set lowercase image name
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "IMAGE=ghcr.io/$OWNER/ledger-api" >> $GITHUB_ENV
 
       # 🧠 SAST
       - name: SAST (Semgrep)
