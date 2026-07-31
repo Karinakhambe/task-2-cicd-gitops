@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # "Sealed Secrets" for Kubernetes
 
 [![](https://img.shields.io/badge/install-docs-brightgreen.svg)](#Installation)
@@ -839,3 +840,6 @@ Click [here](http://slack.k8s.io) to sign up to the Kubernetes Slack org.
 - WebSeal: generates secrets in the browser: [https://socialgouv.github.io/webseal](https://socialgouv.github.io/webseal)
 - HybridEncrypt TypeScript implementation: [https://github.com/SocialGouv/aes-gcm-rsa-oaep](https://github.com/SocialGouv/aes-gcm-rsa-oaep)
 - [DEPRACATED] Sealed Secrets Operator: [https://github.com/disposab1e/sealed-secrets-operator-helm](https://github.com/disposab1e/sealed-secrets-operator-helm)
+=======
+# ledger-api-assignment
+>>>>>>> 08c878b86efea9a594ff519842d05c77bc6badba
