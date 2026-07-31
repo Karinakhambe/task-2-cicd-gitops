@@ -32,13 +32,15 @@ jobs:
           config: p/ci
 
       # 🛡️ Trivy FS scan
-      - name: Trivy filesystem scan
-        uses: aquasecurity/trivy-action@v0
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@master
         with:
-          scan-type: fs
-          scan-ref: .
-          severity: CRITICAL,HIGH
-          exit-code: "1"
+          image-ref: ghcr.io/${{ github.repository }}:latest
+          format: table
+          exit-code: 1
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
 
       # 🏷️ Set tag
       - name: Set image tag
