@@ -1,2 +1,2 @@
-image: ghcr.io/<your-username>/ledger-api:<tag>
+image: ghcr.io/karinakhambe/ledger-api:bc30d9e26d599bc393bb6606ac06ea5c9549efed
 imagePullPolicy: IfNotPresent
