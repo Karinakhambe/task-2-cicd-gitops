@@ -11,8 +11,11 @@ permissions:
   id-token: write
   security-events: write
 
-env:
-  IMAGE: ghcr.io/${{ github.repository_owner }}/ledger-api
+- name: Set lowercase image name
+  run: |
+    OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+    echo "IMAGE=ghcr.io/$OWNER/ledger-api" >> $GITHUB_ENV
+
 
 jobs:
   security-and-build:
