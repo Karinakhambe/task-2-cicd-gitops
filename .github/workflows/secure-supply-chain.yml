@@ -94,6 +94,12 @@ jobs:
       - name: Push image
         run: docker push $IMAGE:$TAG
 
+      # 🔍 Get digest (IMPORTANT FIX)
+      - name: Get image digest
+        run: |
+          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' $IMAGE:$TAG | cut -d'@' -f2)
+          echo "DIGEST=$DIGEST" >> $GITHUB_ENV
+
       # ✍️ Install Cosign
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3
@@ -104,6 +110,14 @@ jobs:
           DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' $IMAGE:$TAG)
           echo "DIGEST=$DIGEST" >> $GITHUB_ENV
           cosign sign --yes $DIGEST
+
+      # 📜 ✅ Provenance (FIXED — no manual JSON)
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.IMAGE }}
+          subject-digest: ${{ env.DIGEST }}
+          push-to-registry: true
 
       # 📜 Attestation
       - name: Attest provenance
