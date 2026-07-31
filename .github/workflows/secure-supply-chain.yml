@@ -122,8 +122,8 @@ jobs:
          # echo "DIGEST=$DIGEST" >> $GITHUB_ENV
           #cosign sign --yes $IMAGE@$DIGEST
 
-     - name: Sign image (Cosign keyless)
-       run: cosign sign --yes $IMAGE@$DIGEST
+      - name: Sign image (Cosign keyless)
+        run: cosign sign --yes $IMAGE@$DIGEST
 
       # 📜 ✅ Provenance (FIXED — no manual JSON)
       - name: Attest build provenance
