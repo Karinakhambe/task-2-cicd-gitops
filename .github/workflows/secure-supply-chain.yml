@@ -153,9 +153,9 @@ jobs:
       - name: Attest build provenance
         uses: actions/attest-build-provenance@v2
         with:
-        subject-name: ${{ env.IMAGE }}
-        subject-digest: ${{ env.DIGEST }}
-        push-to-registry: true
+          subject-name: ${{ env.IMAGE }}
+          subject-digest: ${{ env.DIGEST }}
+          push-to-registry: true
 
       # 🔄 Update GitOps
       - name: Update GitOps manifest
