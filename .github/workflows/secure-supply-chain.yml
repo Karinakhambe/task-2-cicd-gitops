@@ -1,78 +1,105 @@
 name: secure-supply-chain
+
 on:
   push:
     branches: [main]
   pull_request:
+
 permissions:
-  contents: write          # commit gitops bump (or use PR)
-  packages: write          # GHCR
-  id-token: write          # cosign keyless (OIDC)
-  security-events: write   # SARIF upload (bonus)
+  contents: write
+  packages: write
+  id-token: write
+  security-events: write
+
 env:
   IMAGE: ghcr.io/${{ github.repository_owner }}/ledger-api
+
 jobs:
   security-and-build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
+
+      # 🔐 Secrets scan
       - name: Secrets scan (gitleaks)
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 🧠 SAST
       - name: SAST (Semgrep)
         uses: semgrep/semgrep-action@v1
         with:
           config: p/ci
-      - name: Trivy filesystem / deps
-        uses: aquasecurity/trivy-action@0.28.0
+
+      # 🔍 Trivy FS scan (FIXED VERSION)
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@master
         with:
           scan-type: fs
           scan-ref: .
           severity: CRITICAL,HIGH
-          exit-code: "1"          # HARD BLOCK
+          exit-code: "1"
+
+      # 🏷️ Set tag
       - name: Set image tag
         run: echo "TAG=${GITHUB_SHA}" >> $GITHUB_ENV
+
+      # 🐳 Setup Docker
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 🏗️ Build image
       - name: Build image
         run: docker build -t $IMAGE:$TAG ./app
+
+      # 🔍 Trivy image scan (FIXED)
       - name: Trivy image scan
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@master
         with:
           scan-type: image
           image-ref: ${{ env.IMAGE }}:${{ env.TAG }}
           severity: CRITICAL,HIGH
-          exit-code: "1"          # HARD BLOCK (tune in README)
+          exit-code: "1"
+
+      # 🔐 Login to GHCR
       - name: Login GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 📦 Push image
       - name: Push image
         run: docker push $IMAGE:$TAG
+
+      # ✍️ Install Cosign
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3
+
+      # 🔏 Sign image
       - name: Sign image (keyless)
         run: |
-          dig=$(docker inspect --format='{{index .RepoDigests 0}}' $IMAGE:$TAG)
-          echo "DIGEST=$dig" >> $GITHUB_ENV
-          cosign sign --yes $dig
-      - name: Attest provenance (SLSA-style)
+          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' $IMAGE:$TAG)
+          echo "DIGEST=$DIGEST" >> $GITHUB_ENV
+          cosign sign --yes $DIGEST
+
+      # 📜 Attestation
+      - name: Attest provenance
         run: |
           cosign attest --yes \
-            --predicate /dev/null \
+            --predicate <(echo '{"buildType":"github-actions"}') \
             --type slsaprovenance \
-            ${{ env.DIGEST }} || \
-          cosign attest --yes --new-bundle-format=false \
-            --predicate <(echo '{"buildType":"github-actions","builder":"secure-supply-chain"}') \
-            ${{ env.DIGEST }}
-        # Prefer official provenance action if you use it — see Step 3 note
+            $DIGEST
+
+      # 🔄 Update GitOps
       - name: Update GitOps manifest
         run: |
-          # replace image line in gitops/apps/ledger-api.yaml
-          sed -i "s|image:.*|image: ${IMAGE}@${DIGEST#*@}|\"|" gitops/apps/ledger-api.yaml || true
           sed -i "s|image:.*|image: ${IMAGE}:${TAG}|" gitops/apps/ledger-api.yaml
           git config user.name "github-actions"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add gitops/apps/ledger-api.yaml
-          git diff --staged --quiet || git commit -m "chore(gitops): deploy ledger-api ${TAG}"
+          git diff --staged --quiet || git commit -m "chore(gitops): deploy ${TAG}"
           git push
