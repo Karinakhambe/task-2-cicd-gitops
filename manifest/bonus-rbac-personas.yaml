@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: persona-developer
+  namespace: payments
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: persona-operator
+  namespace: payments
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: persona-admin
+  namespace: payments
