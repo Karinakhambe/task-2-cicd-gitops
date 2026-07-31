@@ -134,12 +134,20 @@ jobs:
           push-to-registry: true
 
       # 📜 Attestation
-      - name: Attest provenance
+      #- name: Attest provenance
+       # run: |
+        #  cosign attest --yes \
+         #   --predicate <(echo '{"buildType":"github-actions"}') \
+          #  --type slsaprovenance \
+           # $DIGEST
+ 
+      - name: Attest provenance (Cosign)
         run: |
+          echo '{"buildType":"github-actions"}' > predicate.json
           cosign attest --yes \
-            --predicate <(echo '{"buildType":"github-actions"}') \
-            --type slsaprovenance \
-            $DIGEST
+          --predicate predicate.json \
+          --type slsaprovenance \
+          $IMAGE@$DIGEST
 
       # 🔄 Update GitOps
       - name: Update GitOps manifest
