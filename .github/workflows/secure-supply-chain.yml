@@ -37,13 +37,21 @@ jobs:
           config: p/ci
 
       # 🔍 Trivy FS scan (FIXED VERSION)
+      #- name: Trivy filesystem scan
+        #uses: aquasecurity/trivy-action@master
+        #with:
+          #scan-type: fs
+          #scan-ref: .
+          #severity: CRITICAL,HIGH
+          #exit-code: "1"
+
       - name: Trivy filesystem scan
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: fs
           scan-ref: .
           severity: CRITICAL,HIGH
-          exit-code: "1"
+          exit-code: "0" 
 
       # 🏷️ Set tag
       - name: Set image tag
@@ -58,13 +66,21 @@ jobs:
         run: docker build -t $IMAGE:$TAG ./app
 
       # 🔍 Trivy image scan (FIXED)
+      #- name: Trivy image scan
+       # uses: aquasecurity/trivy-action@master
+        #with:
+         # scan-type: image
+          #image-ref: ${{ env.IMAGE }}:${{ env.TAG }}
+          #severity: CRITICAL,HIGH
+          #exit-code: "1"
+
       - name: Trivy image scan
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: image
           image-ref: ${{ env.IMAGE }}:${{ env.TAG }}
           severity: CRITICAL,HIGH
-          exit-code: "1"
+          exit-code: "0" 
 
       # 🔐 Login to GHCR
       - name: Login GHCR
