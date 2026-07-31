@@ -1,2 +1,2 @@
-image: ghcr.io/karinakhambe/ledger-api:bc30d9e26d599bc393bb6606ac06ea5c9549efed
+image: ghcr.io/karinakhambe/ledger-api:f2ea046bec53a57f0f3977483a71d87eab17c745
 imagePullPolicy: IfNotPresent
