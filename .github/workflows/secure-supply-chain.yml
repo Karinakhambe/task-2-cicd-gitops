@@ -141,13 +141,21 @@ jobs:
           #  --type slsaprovenance \
            # $DIGEST
  
-      - name: Attest provenance (Cosign)
-        run: |
-          echo '{"buildType":"github-actions"}' > predicate.json
-          cosign attest --yes \
-          --predicate predicate.json \
-          --type slsaprovenance \
-          $IMAGE@$DIGEST
+     # - name: Attest provenance (Cosign)
+      #  run: |
+       #   echo '{"buildType":"github-actions"}' > predicate.json
+        #  cosign attest --yes \
+         # --predicate predicate.json \
+          #--type slsaprovenance \
+          #$IMAGE@$DIGEST
+
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+        subject-name: ${{ env.IMAGE }}
+        subject-digest: ${{ env.DIGEST }}
+        push-to-registry: true
 
       # 🔄 Update GitOps
       - name: Update GitOps manifest
