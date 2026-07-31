@@ -1,0 +1,35 @@
+# INTENTIONALLY INSECURE — for Kyverno reject demo only.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ledger-api-insecure
+  namespace: payments
+  labels:
+    app: ledger-api-insecure
+    purpose: kyverno-reject-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ledger-api-insecure
+  template:
+    metadata:
+      labels:
+        app: ledger-api-insecure
+    spec:
+      # Uses default ServiceAccount (bad)
+      containers:
+        - name: ledger-api
+          # Violates: :latest tag policy
+          image: ledger-api:latest
+          imagePullPolicy: IfNotPresent
+          # Violates: plaintext secrets in git/manifests
+          env:
+            - name: STRIPE_API_KEY
+              value: "sk_live_9f3a2b7c1e4d8REDACTED"
+            - name: DB_PASSWORD
+              value: "P@ssw0rd123"
+          ports:
+            - containerPort: 8080
+          # Violates: runs as root — no securityContext /
+          # no runAsNonRoot, no capability drop, no readOnlyRootFilesystem
