@@ -89,8 +89,7 @@ jobs:
 
     # Sign image
       - name: Sign image (Cosign keyless)
-        run: cosign sign --yes $IMAGE@$DI
-GEST
+        run: cosign sign --yes $IMAGE@$DIGEST
 
       # Provenance (FIXED — no manual JSON)
       - name: Attest build provenance
