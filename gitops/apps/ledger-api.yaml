@@ -11,7 +11,7 @@ spec:
     path: gitops/apps/ledger-api
   destination:
     server: https://kubernetes.default.svc
-    namespace: default
+    namespace: payments   
   syncPolicy:
     automated:
       prune: true
