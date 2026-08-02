@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: reporting
-  namespace: default
+  namespace: payments
 spec:
   replicas: 1
   selector:
