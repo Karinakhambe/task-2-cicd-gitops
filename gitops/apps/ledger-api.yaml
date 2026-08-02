@@ -2,3 +2,21 @@ containers:
   - name: ledger-api
     image: ghcr.io/karinakhambe/ledger-api:37245b704d9c01b3a77edb70e40a032161e974e5
     imagePullPolicy: IfNotPresent
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ledger-api
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Karinakhambe/task-2-cicd-gitops
+    targetRevision: main
+    path: gitops/apps/ledger-api   # ✅ THIS IS THE FIX
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
