@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plaintext-client
+  namespace: payments
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: plaintext-client
+  template:
+    metadata:
+      labels:
+        app: plaintext-client
+      annotations:
+        sidecar.istio.io/inject: "false"
+    spec:
+      containers:
+        - name: curl
+          image: curlimages/curl:8.8.0
+          command: ["sleep", "infinity"]

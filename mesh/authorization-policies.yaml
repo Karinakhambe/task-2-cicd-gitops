@@ -1,0 +1,47 @@
+# Default deny all in namespace
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: default-deny
+  namespace: payments
+spec:
+  {}   # empty rules = deny all
+---
+# Allow reporting → ledger-api only (workload identity = SA)
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: ledger-api-allow-reporting
+  namespace: payments
+spec:
+  selector:
+    matchLabels:
+      app: ledger-api
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/payments/sa/reporting
+      to:
+        - operation:
+            methods: ["GET", "POST"]
+            paths: ["/health", "/tokenize", "/transactions"]
+---
+# Allow ledger-api to receive from itself if needed (probes via sidecar)
+# Probes often come as non-mesh health checks — if probes break, allow health from same SA or use probe rewrite.
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: ledger-api-allow-ingress-health
+  namespace: payments
+spec:
+  selector:
+    matchLabels:
+      app: ledger-api
+  action: ALLOW
+  rules:
+    - to:
+        - operation:
+            paths: ["/health"]
+      # tighten later; for kind demos you may allow health from mesh principals only
