@@ -1,4 +1,4 @@
 containers:
   - name: ledger-api
-    image: ghcr.io/karinakhambe/ledger-api@sha256:<your-real-digest>
+    image: ghcr.io/karinakhambe/ledger-api:0f4af56574e9cc804b45a25351f9de8da2718aa1
     imagePullPolicy: IfNotPresent
