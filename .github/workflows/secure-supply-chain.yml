@@ -81,15 +81,16 @@ jobs:
       # Get digest
       - name: Get image digest
         run: |
-          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' $IMAGE:$TAG | cut -d'@' -f2)
-          echo "DIGEST=$DIGEST" >> $GITHUB_ENV      # ✍️ Install Cosign
-      
+          DIGEST=$(docker buildx imagetools inspect $IMAGE:$TAG --format '{{json .Manifest.Digest}}' | tr -d '"')
+          echo "DIGEST=$DIGEST" >> $GITHUB_ENV
+  
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3
 
-      # Sign image
+    # Sign image
       - name: Sign image (Cosign keyless)
-        run: cosign sign --yes $IMAGE@$DIGEST
+        run: cosign sign --yes $IMAGE@$DI
+GEST
 
       # Provenance (FIXED — no manual JSON)
       - name: Attest build provenance

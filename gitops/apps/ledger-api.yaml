@@ -1,2 +1,4 @@
-image: ghcr.io/karinakhambe/ledger-api:f2ea046bec53a57f0f3977483a71d87eab17c745
-imagePullPolicy: IfNotPresent
+containers:
+  - name: ledger-api
+    image: ghcr.io/karinakhambe/ledger-api@sha256:<your-real-digest>
+    imagePullPolicy: IfNotPresent
