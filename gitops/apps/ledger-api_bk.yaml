@@ -1,0 +1,2 @@
+image: ghcr.io/<your-username>/ledger-api:<tag>
+imagePullPolicy: IfNotPresent

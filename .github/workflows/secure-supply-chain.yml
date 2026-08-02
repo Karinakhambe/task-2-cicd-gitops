@@ -1,0 +1,118 @@
+name: secure-supply-chain
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+  security-events: write
+  attestations: write   
+
+jobs:
+  security-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Secrets scan
+      - name: Secrets scan (gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        continue-on-error: true 
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set lowercase image name
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "IMAGE=ghcr.io/$OWNER/ledger-api" >> $GITHUB_ENV
+
+      # SAST
+      - name: SAST (Semgrep)
+        uses: semgrep/semgrep-action@v1
+        with:
+          config: p/ci
+
+      # Trivy FS scan 
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: CRITICAL,HIGH
+          exit-code: "0" 
+
+      # Set tag
+      - name: Set image tag
+        run: echo "TAG=${GITHUB_SHA}" >> $GITHUB_ENV
+
+      # Setup Docker
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Build image
+      - name: Build image
+        run: docker build -t $IMAGE:$TAG ./app
+
+      # Trivy image scan 
+      - name: Trivy image scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: image
+          image-ref: ${{ env.IMAGE }}:${{ env.TAG }}
+          severity: CRITICAL,HIGH
+          exit-code: "0" 
+
+      # Login to GHCR
+      - name: Login GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Push image
+      - name: Push image
+        run: docker push $IMAGE:$TAG
+
+      # Get digest
+      - name: Get image digest
+        run: |
+          DIGEST=$(docker buildx imagetools inspect $IMAGE:$TAG --format '{{json .Manifest.Digest}}' | tr -d '"')
+          echo "DIGEST=$DIGEST" >> $GITHUB_ENV
+  
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3
+
+    # Sign image
+      - name: Sign image (Cosign keyless)
+        run: cosign sign --yes $IMAGE@$DIGEST
+
+      # Provenance (FIXED — no manual JSON)
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.IMAGE }}
+          subject-digest: ${{ env.DIGEST }}
+          push-to-registry: true
+
+      # Attestation
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.IMAGE }}
+          subject-digest: ${{ env.DIGEST }}
+          push-to-registry: true
+
+      # Update GitOps
+      - name: Update GitOps manifest
+        run: |
+          sed -i "s|image:.*|image: ${IMAGE}:${TAG}|" gitops/apps/ledger-api.yaml
+          git config user.name "github-actions"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add gitops/apps/ledger-api.yaml
+          git diff --staged --quiet || git commit -m "chore(gitops): deploy ${TAG}"
+          git push

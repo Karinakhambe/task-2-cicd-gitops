@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ledger-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ledger-api
+  template:
+    metadata:
+      labels:
+        app: ledger-api
+    spec:
+      containers:
+        - name: ledger-api
+          image: ghcr.io/karinakhambe/ledger-api:d7cf6d0bc569e1dd428e8c40108834da9d1329eb
+          ports:
+            - containerPort: 8080
