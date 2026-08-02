@@ -1,7 +1,3 @@
-containers:
-  - name: ledger-api
-    image: ghcr.io/karinakhambe/ledger-api:c869fd658547f426c1f5f43f1ffad96e539f2e23
-    imagePullPolicy: IfNotPresent
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -12,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/Karinakhambe/task-2-cicd-gitops
     targetRevision: main
-    path: gitops/apps/ledger-api   # ✅ THIS IS THE FIX
+    path: gitops/apps/ledger-api
   destination:
     server: https://kubernetes.default.svc
     namespace: default
