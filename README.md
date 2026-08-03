@@ -6,8 +6,11 @@ Kubernetes Hardening • Secure CI/CD • GitOps • Istio Zero-Trust Mesh
 This project demonstrates how to build and operate a secure, production-grade microservices platform on Kubernetes using:
 
 🔐 Zero-trust networking (Istio mTLS + AuthZ)
+
 🔁 Secure CI/CD with supply chain security
+
 ⚙️ GitOps-based deployment (Argo CD)
+
 🛡️ Kubernetes hardening & policy enforcement
 
 💡 This is not just a deployment — it includes real-world debugging of service mesh failures, policy conflicts, and networking issues.
@@ -28,6 +31,7 @@ Kubernetes Cluster (kind)
 Istio Service Mesh (mTLS + AuthZ)
 
 ✅ Task 1 – Kubernetes Hardening
+
 🔧 Improvements Implemented
 Area	Before	After
 Container	Root	✅ Non-root (UID 1000)
@@ -203,7 +207,9 @@ curl localhost:8080/health
 ✅ App returned:
 
 {"status":"ok"}
+
 🧪 Final Verification
+
 Test	Result
 Local Docker	✅
 Kubernetes Service	✅
