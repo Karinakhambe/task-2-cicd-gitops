@@ -1,4 +1,5 @@
 🔐 Secure Payments Platform
+
 Kubernetes Hardening • Secure CI/CD • GitOps • Istio Zero-Trust Mesh
 
 🌟 Project Summary
@@ -14,6 +15,7 @@ This project demonstrates how to build and operate a secure, production-grade mi
 🛡️ Kubernetes hardening & policy enforcement
 
 💡 This is not just a deployment — it includes real-world debugging of service mesh failures, policy conflicts, and networking issues.
+
 
 🏗️ Architecture Overview
 
@@ -43,6 +45,7 @@ Kubernetes Cluster (kind)
    
 Istio Service Mesh (mTLS + AuthZ)
 
+
 ✅ Task 1 – Kubernetes Hardening
 
 🔧 Improvements Implemented
@@ -66,6 +69,7 @@ Image	           python:3.6	      ✅ Hardened image
 Admission	     None	            ✅ Kyverno policies
 
 
+
 🔐 Security Context
 
 securityContext:
@@ -82,6 +86,7 @@ securityContext:
   
     drop: ["ALL"]
     
+
 
 🔑 Secrets Management
 
@@ -111,6 +116,7 @@ kubectl apply -f insecure-baseline.yaml
 
 
 ✅ Result: Rejected by Kyverno
+
 
 ⚙️ Task 2 – Secure CI/CD + GitOps
 
@@ -180,6 +186,7 @@ Status: Healthy + Synced
 
 Sync: Successful
 
+
 🌐 Task 3 – Istio Service Mesh Security
 
 🔒 mTLS Enforcement
@@ -230,6 +237,7 @@ mTLS traffic	✅ Encrypted
 
 This project includes real-world production debugging scenarios.
 
+
 🚨 Issue 1 – no healthy upstream
 
 Cause:
@@ -239,6 +247,7 @@ Istio could not find healthy endpoints
 Fix:
 
 Verified pod + service alignment
+
 
 🚨 Issue 2 – 503 Service Unavailable (Envoy)
 
@@ -263,6 +272,7 @@ ports:
   
 
 👉 Istio requires port naming for protocol detection
+
 
 🚨 Issue 3 – Curl Hanging (No Response)
 
@@ -289,6 +299,7 @@ Apply single clean policy:
 
 ALLOW reporting → ledger-api
 
+
 🚨 Issue 4 – mTLS Blocking Traffic
 
 Cause:
@@ -298,6 +309,7 @@ STRICT mode without proper policy
 Fix:
 Correct AuthorizationPolicy with proper principal
 
+
 🚨 Issue 5 – No curl inside container
 
 exec: "curl": not found
@@ -306,6 +318,7 @@ Fix:
 
 Used port-forward instead
 
+
 🚨 Issue 6 – Port-forward conflicts
 
 bind: address already in use
@@ -313,6 +326,7 @@ bind: address already in use
 Fix:
 
 Switched ports (8081, 9090)
+
 
 🚨 Issue 7 – Envoy 503 Despite Healthy App
 
